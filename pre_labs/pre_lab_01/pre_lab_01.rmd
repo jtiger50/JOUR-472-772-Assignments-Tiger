@@ -149,7 +149,7 @@ Describe what you think each line of this code is doing below, based on the resu
 **Task** Run the following codeblock:
 
 ```{r}
-umd_courses |>
+instructor_count <- umd_courses |>
   group_by(instructors) |>
   summarise(
     count_classes = n()
@@ -164,12 +164,12 @@ Compared to the previous codeblock, what has changed and how did that affect the
 **Task** Run the following codeblock.
 
 ```{r}
-umd_courses |>
+department_count <- umd_courses |>
   group_by(term, department) |>
   summarise(
     count_classes = n()
   ) |>
-  arrange(term, department)
+  arrange(desc(count_classes), department)
 ```
 
 Compared to the previous codeblock, how did the output change and what in the code changed it?
@@ -222,8 +222,8 @@ umd_courses |>
     total_seats = sum(seats),
     mean_seats = mean(seats),
     median_seats = median(seats),
-    # add minimum seats here
-    # add maximum seats here
+    minimum_seats = min(seats),
+    maximum_seats = max(seats)
   ) |>
   arrange(desc(total_seats))
 ```
@@ -238,8 +238,8 @@ No code here; I want you to provide three questions that this data suggests to y
 
 **Answer**
 
-1.  
+1.  What department has the largest course sections on average?
 
-2.  
+2.  What course has the largest range of seats?
 
-3.  
+3.  Which instructor taught the most courses in a single term?

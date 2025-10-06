@@ -18,6 +18,8 @@ options(scipen=999)
 # Load the tidyverse
 
 # Load janitor
+library (tidyverse)
+library (janitor)
 ```
 
 ## TASK: Load data and clean up the column names
@@ -68,27 +70,38 @@ pg_schools |>
 
 ```{r}
 cleaned_umd_payments |>
+  clean_names() |>
   filter(str_detect(agency_name, "UNIVERSITY OF MARYLAND") & str_detect(agency_name, "CAPITAL")) |>
   group_by(vendor_name) |>
-  summarise(vendor_count = n()) |>
-  arrange(desc(vendor_count))
+  summarise(vendor_amount = sum(amount)) |>
+  arrange(desc(vendor_amount))
 # Q3. You're interested in examining the vendors paid for capital projects at the University of Maryland. Search the payments data to find those payments, then write code to produce a list of each vendor and the total amount it received.
 
 # Look carefully at that list - what cleaning will it require to ensure that you have only one row per vendor and zip code? Provide at least three examples of vendor names that are similar and should be combined into one. Describe in words how you might clean that data so that any nearly identical vendors would look identical - what would you change and how?
 
-#A3.
+#A3. Some vendors (like Whiting Turner, Plano-Coudon and Precision X-Ray) clearly have duplicate entries that should be combined. To fix this, I would use get_dupes to look for duplicate payment amounts. I would then go in manually and either delete the duplicates (if they are double entries) or make them uniform with the other entries (if the identical payments are intentional).
 ```
 
 Q4: You want to understand how much state grant money went to stem cell research projects each fiscal year. Search the data to find grants that fit that description. Once you find which column(s) contain the information you want, your code should find just the grants for stem cell research in a single filter. Then calculate the total amount of money for each fiscal year. Write a sentence summarizing how stem cell research funding has changed over time.
 
-A4:
+A4: On the whole, it seems as though stem cell research funding has trended down, but there was a recent surge in 2023. Most of the top years are from 15 years ago or so, aside from 2023. The top year, 2009, is a huge outlier for some reason. It could have something to do with the Obama administration taking over.
 
 ```{r}
+md_stem_cells |>
+  filter(str_detect(source, "STEM CELL") | str_detect(description, "STEM CELL")) |>
+  group_by(fiscal_year) |>
+  summarise(year_amount = sum(amount)) |>
+  arrange(desc(year_amount))
 ```
 
 Q5: Using the Maryland grants and loan data, find records where the zip code is the one where the University of Maryland-College Park is located in and produce a list of grantees from that zip code, along with the total amount they received. Write a paragraph explaining how many grantees are there, what you would need to do to clean the results so that you had one record per grantee and which grantees are most interesting to you?
 
-A5:
+A5: There are multiple entries where the money is going to UMD. Some entries are more specific, like which department at UMD, and some only generally state the money is going to the university. There are also duplicates like "UNIVERSITY OF MARYLAND" and "UNIVERSITY OF MARYLAND COLLEGE PARK". To clean this data, I would first get rid of duplicates by fixing issues like the one I just mentioned. Then, I would make all mentions of UMD uniform but just having them say "UMD", so no more "UNIV OF MD", "UNIVERSITY OF MARYLAND", etc. Finally, I think I would have two different tables using this data: one of them would keep the extra details of saying where in the university the money is going when applicable, and the other would more simply lump all of the UMD entries together to see the total amount of money that went to the university. I think the most interesting entry here is the money going to the performing arts center. I'd to know what exactly that money funded.
 
 ```{r}
+umd_zip_grants |>
+  filter(str_detect(zip_code, "20742")) |>
+  group_by(grantee) |>
+  summarise(grantee_amount = sum(amount)) |>
+  arrange(desc(grantee_amount))
 ```

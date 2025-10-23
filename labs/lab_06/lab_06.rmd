@@ -73,7 +73,7 @@ Q2. In your combined dataframe that you used in A1, add a column for the month o
 
 Then calculate the most calls per county and location. Which location had the most calls - where and what is that location?
 
-A2.For the county results by month, it appears that August is an outlier month with the highest amount of 911 calls. In general, warmer months seem to have more 911 calls compared to colder months, which makes sense.
+A2.For the county results by month, it appears that August is an outlier month with the highest amount of 911 calls. In general, warmer months seem to have more 911 calls compared to colder months, which makes sense. As for locations, there is an extreme outlier in 314 Grove Neck Rd, Earleville, MD. which had the most calls with 15. The next closest locations have seven calls. 314 Grove Neck Rd is the address of a rehab facility.
 
 ```{r}
 county_911_combined_with_month <- county_911_combined |>
@@ -86,6 +86,12 @@ county_911_combined_with_month |>
   summarise(month_total = n())|>
   
   arrange(desc(month_total))
+
+county_911_combined_with_month |>
+  group_by(location) |>
+  summarise(location_total = n()) |>
+  
+  arrange(desc(location_total))
 ```
 
 Q3. Let's turn to the Baltimore City data. You're interested in exploring calls in zip codes with a high percentage of children under 18. Write code to isolate calls in zip codes where the percentage of under 18 population is at least 75% and then show the zip code and population and how many calls occurred in each of those zip codes.
@@ -96,14 +102,33 @@ Add a column to your code that calculates the number of calls per 1,000 people f
 
 Which zip code has the highest rate of calls per 1,000 people? Find the neighborhoods in that zip code that are listed in the data - you can use group_by or distinct to do this. What are some of those neighborhoods, and what else can you tell me about the population there?
 
-A3.
+A3. Part 1: The zip codes with the most 911 calls are clustered at the center of the city where population and foot traffic are the highest. Part 2: 21217 has the highest calls per capita as well as the highest total calls. Some of the neighborhoods in this zip code are Harlem Park, Druid Heights, Penn North and Bolton Hill. The populations in these neighborhoods are predominantly young, Black renters.
 
 ```{r}
+joined_baltimore_911 |>
+  filter(PCT_UNDER_18 > 75) |>
+  select(zip_code, POPULATION, PCT_UNDER_18) |>
+  group_by(zip_code, POPULATION) |>
+  summarise(total_calls_in_zip = n()) |>
+  arrange(desc(total_calls_in_zip))
+
+baltimore_911_calls_per_capita <- joined_baltimore_911 |>
+  group_by(zip_code, POPULATION) |>
+  summarise(total_calls = n()) |>
+  mutate(calls_per_capita = total_calls/POPULATION * 1000)
+
+baltimore_911_calls_per_capita |>
+  arrange(desc(calls_per_capita))
 ```
 
 Q4. Choose your own adventure: I want you to come up with a question you could ask of the Baltimore City data that combines both the calls and the demographic information. You must use both demographics and the overdose call data in your work.
 
-A4:
+A4: Q: Is there a correlation between the availability of housing and 911 calls in certain parts of Baltimore? A: Based on this basic analysis, it seems the opposite of what I expected is true. I thought there would be more calls in areas where there were far more people than housing units, but that is not the case. There are more 911 calls in areas where the population is closer to the number of housing units. This probably says more about the demographics of each area; family households (more people per unit) are less likely to have an overdose call than younger people living on their own or with a partner (fewer people per unit).
 
 ```{r}
+housing_baltimore_911_calls <- joined_baltimore_911 |>
+  group_by(zip_code, POPULATION, HOUSING_UNITS) |>
+  summarise(total_calls = n()) |>
+  mutate(people_per_unit = POPULATION/HOUSING_UNITS) |>
+  mutate(calls_per_person = total_calls/POPULATION)
 ```

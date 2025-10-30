@@ -1,7 +1,7 @@
 ---
 title: "Reverse Engineering Project Group 2"
 author: "Lillian Glaros, William Deffaa, Jake Tiger"
-date: "10/22/2025"
+date: "10/29/2025"
 output:
   html_document:
     theme: cerulean
@@ -48,6 +48,7 @@ cleaned_private_enrollment <- private_enrollment |>
 
 cleaned_public_enrollment <- public_enrollment |>
   mutate(grade = str_to_upper(grade))
+  
 ```
 
 ## Sentences to Engineer
@@ -70,31 +71,47 @@ arrange(desc(total_enrollment))
 ```
 
 ```{r}
+
+# keeping this boring method for now because we can't figure out the more sophisticated way yet. We promise we tried to hard to find a way where it would pull the values from the data automatically, but everything thing we found online was just a more complicated way of doing the code below.
+
 98405826 - 95994012
 ```
 
 ### Sentence 2
 
--   **Sentence text**: [Paste in sentence to engineer here]
--   **Analysis summary**: [Write up two to three sentences describing the results of your analysis. Were you able to confirm the finding? If not, why not?]
+-   **Sentence text**: Some of those students enrolled in private schools. Across the states in the analysis, private-school enrollment grew by **about 103,000 students**.
+-   **Analysis summary**:
 
 ```{r}
-# Put code to reverse engineer sentence here
+cleaned_private_enrollment |>
+  group_by(sch_year) |>
+  summarise(total_enrollment = sum(enrollment, na.rm=TRUE)) |>
+  
+  
+arrange(desc(total_enrollment))
+```
 
-# Display results of code below this codeblock
+```{r}
 
+6957577 - 6716574
 ```
 
 ### Sentence 3
 
--   **Sentence text**: [Paste in sentence to engineer here]
+-   **Sentence text**: Some families also moved out of state, accounting for some enrollment decline. And birth rates in some states are falling. The population of school-age kids in the states we studied fell by **about 183,000**, according to census estimates.
 -   **Analysis summary**: [Write up two to three sentences describing the results of your analysis. Were you able to confirm the finding? If not, why not?]
 
 ```{r}
-# Put code to reverse engineer sentence here
+dates_pop_by_grade <- pop_by_grade |>
+  filter(str_detect(est_date, "2020-07") | str_detect(est_date, "2021-07"))
 
-# Display results of code below this codeblock
+dates_pop_by_grade |>
+  group_by(est_date) |>
+  summarise(total_population = sum(population))
+```
 
+```{r}
+54940421 - 54739095
 ```
 
 ### Sentence 4

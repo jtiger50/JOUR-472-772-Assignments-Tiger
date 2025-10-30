@@ -242,7 +242,7 @@ cleaned_md_grants_loans <- md_grants_loans |>
   rename(source = grantor) |> 
   mutate(source = str_to_upper(source), grantee = str_to_upper(grantee), description = str_to_upper(description)) |> 
   distinct() |>
-  mutate(zip5 = str_sub(zip_code, start=1L, end=5L)) |>
+  mutate(zip5 = str_sub(zip_code, start=7L, end=11L)) |>
   mutate(zip5 = case_when(
     zip5 == "Vario" ~ NA,
     zip5 == "UB7 O" ~ NA,

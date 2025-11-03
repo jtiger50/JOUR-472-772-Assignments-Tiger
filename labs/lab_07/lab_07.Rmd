@@ -119,11 +119,12 @@ joined_moco_overdoses |>
 
 **Q4** Using [CensusReporter.org](https://censusreporter.org/), examine the zip codes with the highest and lowest rates and compare and contrast their demographic profiles. Is there a story here?
 
-**A4**
+**A4: There could be a story here. Both counties are predominantly Hispanic, but I think the thing that is more fascinating is that the zip code with the highest rate has a higher median age and household income than the zip code with the lowest rate, which was surprising to me.**
 
 **Q5** Go back to your joined dataframe from Q3 and add two more columns representing the minimum and maximum populations based on the estimate and margin of error, then calculate per capita rates for each. Do you get the same two zip codes for the highest and lowest as you did before? Does that give you more or less confidence in your answers to Q3?
 
 **A5**
 
 ```{r}
+
 ```

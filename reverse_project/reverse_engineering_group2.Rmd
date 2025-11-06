@@ -61,13 +61,15 @@ In this notebook, we are reverse engineering five sentences from the story.
 -   **Analysis summary**: We did the same analysis as the AP story, but the results were much different because the data we're using is more complete. The AP story found that public-school enrollment declined by about 700,000 students, but our analysis showed a decrease of over 2.4 million students due to having data from more states. We summed up enrollment totals for each year and found the difference between the 2019-2020 and 2021-2022 school years.
 
 ```{r}
-cleaned_public_enrollment |>
-  
+added_public <- cleaned_public_enrollment |>
   group_by(sch_year) |>
-  summarise(total_enrollment = sum(enrollment, na.rm=TRUE)) |>
+  summarise(total_pub_enrollment = sum(enrollment, na.rm=TRUE)) |>
   
-  
-arrange(desc(total_enrollment))
+arrange(desc(total_pub_enrollment))
+
+# omg i kinda got it to work
+added_public |>
+  mutate(difference = total_pub_enrollment[sch_year == "2021-2022"] - total_pub_enrollment[sch_year == "2019-2020"])
 ```
 
 ```{r}
@@ -83,12 +85,14 @@ arrange(desc(total_enrollment))
 -   **Analysis summary**:
 
 ```{r}
-cleaned_private_enrollment |>
+added_private <- cleaned_private_enrollment |>
   group_by(sch_year) |>
-  summarise(total_enrollment = sum(enrollment, na.rm=TRUE)) |>
+  summarise(total_priv_enrollment = sum(enrollment, na.rm=TRUE)) |>
   
-  
-arrange(desc(total_enrollment))
+arrange(desc(total_priv_enrollment))
+
+added_private |>
+  mutate(difference = total_priv_enrollment[sch_year == "2021-2022"] - total_priv_enrollment[sch_year == "2019-2020"])
 ```
 
 ```{r}
@@ -105,9 +109,12 @@ arrange(desc(total_enrollment))
 dates_pop_by_grade <- pop_by_grade |>
   filter(str_detect(est_date, "2020-07") | str_detect(est_date, "2021-07"))
 
-dates_pop_by_grade |>
+added_dates_pop_by_grade <- dates_pop_by_grade |>
   group_by(est_date) |>
   summarise(total_population = sum(population))
+
+added_dates_pop_by_grade |>
+  mutate(difference = total_population[est_date == "2021-07-01"] - total_population[est_date == "2020-07-01"])
 ```
 
 ```{r}
@@ -116,23 +123,64 @@ dates_pop_by_grade |>
 
 ### Sentence 4
 
--   **Sentence text**: [Paste in sentence to engineer here]
--   **Analysis summary**: [Write up two to three sentences describing the results of your analysis. Were you able to confirm the finding? If not, why not?]
+-   **Sentence text**: That leaves an **estimated 230,000 students** still unaccounted for in the data. These are children who didn’t sign up for private school or home-school or move out of state. They are missing.
+-   **Analysis summary**: Based on our math using all 50 states and DC, and without homeschooling data, there appear to be just under two million kids missing from public school after the pandemic. The the rise in private school enrollment and the drop in overall population were subtracted from the drop in public school enrollment to find the number of kids who are currently unaccounted for. This was a huge pain to do. I needed to join all of the data into one frame so I could calculate the difference using the more complex method, but I was having a lot of troubling joining them due to different data types. So I made a throwaway "joiner" column just to get all of the totals in one place.
 
 ```{r}
-# Put code to reverse engineer sentence here
+final_public <- added_public |>
+  mutate(pub_difference = total_pub_enrollment[sch_year == "2019-2020"] - total_pub_enrollment[sch_year == "2021-2022"])
+  
 
-# Display results of code below this codeblock
+final_private <- added_private |>
+  mutate(priv_difference = total_priv_enrollment[sch_year == "2021-2022"] - total_priv_enrollment[sch_year == "2019-2020"])
 
+final_pop <- added_dates_pop_by_grade |>
+  mutate(pop_difference = total_population[est_date == "2020-07-01"] - total_population[est_date == "2021-07-01"]) |>
+  mutate(joiner = 0-0)
+
+half_final_missing <- final_public |>
+  left_join(final_private, join_by(sch_year)) |>
+  mutate(joiner = 0-0)
+
+final_missing <- half_final_missing |>
+  left_join(final_pop, join_by(joiner)) |>
+  mutate(missing_difference = pub_difference[joiner == "0"] - priv_difference[joiner == "0"] - pop_difference[joiner == "0"])
 ```
 
 ### Sentence 5
 
 -   **Sentence text**: Using the methodology of the other group, filtering for only the 21 states they had data for plus DC.
--   **Analysis summary**: [Write up two to three sentences describing the results of your analysis. Were you able to confirm the finding? If not, why not?]
+-   **Analysis summary**: When filtering for only the states that the original investigation used, the data showed that public school enrollment decreased by about 1.4 million students. In our original analysis using all of the available data, we found a decrease of 2.4 million.
 
 ```{r}
-
+ alternate_public <- cleaned_public_enrollment |> 
+   filter (str_detect(state, "DISTRICT OF COLUMBIA") | str_detect(state, "CALIFORNIA") | str_detect(state, "NEW YORK") | str_detect(state, "LOUISIANA") | str_detect(state, "NORTH CAROLINA") | str_detect(state, "WASHINGTON") | str_detect(state, "COLORADO") | str_detect(state, "GEORGIA") | str_detect(state, "MINNESOTA") | str_detect(state, "WISCONSIN") | str_detect(state, "NEW HAMPSHIRE") | str_detect(state, "MASSACHUSETTS") | str_detect(state, "MONTANA") | str_detect(state, "DELAWARE") | str_detect(state, "NORTH DAKOTA") | str_detect(state, "SOUTH DAKOTA") | str_detect(state, "SOUTH CAROLINA") | str_detect(state, "NEBRASKA") | str_detect(state, "RHODE ISLAND") | str_detect(state, "TENNESSEE") | str_detect(state, "PENNSYLVANIA") | str_detect(state, "FLORIDA")) |>
+   group_by(sch_year) |>
+   summarise(enrollment = sum(enrollment))
+ 
+alternate_public |>
+  mutate(difference = enrollment[sch_year == "2021-2022"] - enrollment[sch_year == "2019-2020"])
 ```
 
 -30-
+
+```{r}
+total_k_12_public <- cleaned_public_enrollment |>
+  filter(str_detect(grade, "K_12_TOTAL"))
+
+added_total_k_12_public <- total_k_12_public |>
+  group_by(sch_year) |>
+  summarise(total_enrollment = sum(enrollment)) 
+
+cleaned_private_enrollment |>
+  group_by(sch_year) |>
+  summarise(total_enrollment = sum(enrollment, na.rm=TRUE)) |>
+  arrange(desc(total_enrollment))
+
+dates_pop_by_grade |>
+  group_by(est_date) |>
+  summarise(total_population = sum(population))
+
+added_total_k_12_public |>
+  mutate(difference = total_enrollment[sch_year == "2021-2022"] - total_enrollment[sch_year == "2019-2020"])
+```

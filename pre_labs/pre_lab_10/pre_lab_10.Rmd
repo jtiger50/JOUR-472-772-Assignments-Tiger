@@ -364,7 +364,7 @@ So let's change the color scale to a "log" scale, which will help us see those d
 
 ### Task: Run code
 
-**Task** Run the following code. Describe the output in the space below. What regional patterns do you see? **Answer: It appears that the rates are higher in urban areas, which could mean that foreclosures more commonly affect minority communites in and around cities.**
+**Task** Run the following code. Describe the output in the space below. What regional patterns do you see? **Answer: It appears that the rates are higher in urban areas, which could mean that foreclosures more commonly affect minority communities in and around cities.**
 
 ```{r}
 ggplot() +

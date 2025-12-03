@@ -1,0 +1,108 @@
+---
+title: "lab_12"
+author: "Derek Willis"
+date: "2025-01-16"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## You will need
+
+-   tidytext and our usual libraries
+
+## Load libraries and establish settings
+
+**Task** Create a codeblock and load appropriate packages and settings for this lab.
+
+```{r}
+library(tidyverse)
+library(tidytext)
+library(janitor)
+library(lubridate)
+library(rvest)
+```
+
+## Questions
+
+**Q1.** You've been assigned to report a story about the leading reasons that Maryland attorneys get sanctioned by the state for misconduct. The state [publishes lists of sanctions](https://www.courts.state.md.us/attygrievance/sanctions) that contain a short text description about the situation. Load the CSV file in the data folder containing records from fiscal year 2011 onwards. Make a list of unique words from the text column, then following the example in the pre_lab, remove common "stop words" from that list and create a list of the top 10 words containing the percentage of occurrences each word represents. What's the leading word in that answer and, broadly, what do you think the top 10 words describe?
+
+**A1. The leading word is "trust," which could mean that most sanctions are a result of mishandling a client's trust account. The other words in the top 10 point to this as well, with other common words being "funds" and "account." "Justice" being in the top 10 is interesting when it comes to attorney sanctions. I also want to note that I decided to remove conduct because it can mean too many things, and it can be a noun or a verb, which I think inflated its numbers a bit.**
+
+```{r}
+md_sanctions <- read_csv("data/md_attorney_sanctions.csv")
+
+unique_words <- md_sanctions |> select(text) |>
+  unnest_tokens(word, text)
+
+unique_words |>
+  count(word, sort = TRUE) |>
+  top_n(25) |>
+  mutate(word = reorder(word, n)) |>
+  ggplot(aes(x = word, y = n)) +
+  geom_col() +
+  xlab(NULL) +
+  coord_flip() +
+      labs(x = "Count",
+      y = "Unique words",
+      title = "Count of unique words found in Maryland attorney sanctions")
+```
+
+```{r}
+data("stop_words")
+
+stop_words <- stop_words |>
+  add_row(word = "client") |> 
+  add_row(word = "respondent") |> 
+  add_row(word = "attorney") |>
+  add_row(word = "failing") |>
+  add_row(word = "maryland") |>
+  add_row(word = "failure") |>
+  add_row(word = "clients") |>
+  add_row(word = "failed") |>
+  add_row(word = "suspension") |>
+  add_row(word = "reprimand") |>
+  add_row(word = "suspension") |>
+  add_row(word = "engaging") |>
+  add_row(word = "disbarred") |>
+  add_row(word = "bar") |>
+  add_row(word = "conduct")
+
+unique_words |>
+  anti_join(stop_words) |>
+  group_by(word) |>
+  tally(sort=TRUE) |>
+  mutate(percent = (n/sum(n))*100) |>
+  top_n(10)
+```
+
+**Q2.** Let's move beyond single words to phrases. Make a list of the top 10 three-word phrases, called trigrams, based on the example from the pre_lab (you'll need to modify the example code to do this). What's the top trigram and how often does it appear? What does that phrase mean in legal terms?
+
+**A2. The top trigram is "dishonesty fraud deceit" and "involving dishonesty fraud" is an extremely close second. These are the two most common trigrams by far, likely because they are sort of umbrella terms that include a number of specific actions. These words appear next to each other as a list in misconduct law. These trigrams are accusations, but not specific to an attorney's actions. The following trigrams involve unreasonable fees and poor record keeping, which I think are the actual most common reasons why attorneys are disciplined.**
+
+```{r}
+md_sanctions |>
+  unnest_tokens(trigram, text, token = "ngrams", n = 3) |>
+  separate(trigram, c("word1", "word2", "word3"), sep = " ") |>
+  filter(!word1 %in% stop_words$word) |>
+  filter(!word2 %in% stop_words$word) |>
+  filter(!word3 %in% stop_words$word) |>
+  mutate(trigram = paste(word1, word2, word3, sep=" ")) |>
+  group_by(trigram) |>
+  tally(sort=TRUE) |>
+  mutate(percent = (n/sum(n))*100) |>
+  top_n(10)
+```
+
+**Q3.** Let's drop back down to more traditional text analysis - take the top trigram from Q2 and write code to see how many times it occurs in the text column in each fiscal year. What do you think the answer produced by your code suggests? What else could you do to try and clarify the most important reasons attorneys get sanctioned?
+
+**A3. There is a clear increase over time in the number of times this phrase appears, but I think this is likely due to better digitization of records by Maryland. In 2019 in particular, I would guess that Maryland overhauled its digital record-keeping, since the number jumps so much from 2018 to 2019. To refine the results, I would create a column that takes the total number of entries in each fiscal year and divides it by the count in the code below. This would give a ratio that would tell us if this is just a record-keeping thing or if there actually was a spike from 2019 on. To get clarify the reasons why attorneys are being sanctioned, I would filter out the dishonesty, fraud, deceit" phrases and any others that don't tell us much. Ideally, I would trim the phrases down to just things that reference things like unreasonable fees, record-keeping and unprofessional conduct. These are the specific things that tell us what the attorney actually did to be sanctioned.**
+
+```{r}
+md_sanctions |>
+  filter(str_detect(text, "involving dishonesty, fraud")) |>
+  group_by(fiscal_year) |>
+  summarize(count = n())
+```

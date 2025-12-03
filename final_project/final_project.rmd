@@ -8,12 +8,46 @@ This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute
 Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*.
 
 ```{r}
-md_mobile <- read_csv("bdc_24_mobile_broadband_summary_by_geography_place_J25_22nov2025.csv")
-md_fixed <- read_csv("bdc_24_fixed_broadband_summary_by_geography_place_J25_22nov2025.csv")
+library(tidyverse)
+library(janitor)
+library(tidycensus)
+library(ggplot2)
 ```
 
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+```{r}
+md_mobile <- read_csv("bdc_24_mobile_broadband_summary_by_geography_place_J25_22nov2025.csv") |> clean_names() |>
+  mutate(geography_id = as.character(geography_id))
 
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file).
+md_fixed <- read_csv("bdc_24_fixed_broadband_summary_by_geography_place_J25_22nov2025.csv") |> clean_names()
 
-The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+variables <- load_variables(2023, "acs5", cache = TRUE)
+
+md_pop <- get_acs(geography = "place",
+              variables = c(population = "B01001A_001"),
+              state = "MD",
+              year = 2023)
+
+md_med_income <- get_acs(geography = "place",
+              variables = c(med_income = "B19013_001"),
+              state = "MD",
+              year = 2023)
+```
+
+```{r}
+mobile_by_pop <- md_mobile |>
+  filter(str_detect(area_data_type, "Total")) |>
+  left_join(md_pop, join_by(geography_id == GEOID)) |>
+  select(!c("mobilebb_3g_area_iv_pct", "mobilebb_3g_area_st_pct", "mobilebb_4g_area_st_pct", "mobilebb_4g_area_iv_pct", "mobilebb_5g_spd1_area_iv_pct", "mobilebb_5g_spd1_area_st_pct", "mobilebb_5g_spd2_area_iv_pct"))
+
+mobile_by_income <- md_mobile |>
+  filter(str_detect(area_data_type, "Total")) |>
+  left_join(md_med_income, join_by(geography_id == GEOID)) |>
+  select(!c("mobilebb_3g_area_iv_pct", "mobilebb_3g_area_st_pct", "mobilebb_4g_area_st_pct", "mobilebb_4g_area_iv_pct", "mobilebb_5g_spd1_area_iv_pct", "mobilebb_5g_spd1_area_st_pct", "mobilebb_5g_spd2_area_iv_pct"))
+```
+
+```{r}
+ggplot(mobile_by_income, aes(x=mobilebb_5g_spd2_area_st_pct, y=estimate)) + 
+  geom_point()
+```
+
+Limitations/challenges so far are that coverage as a whole is pretty good everywhere at this point, so we have to mainly look at the highest speed of mobile coverage, since that is not yet available everywhere. Our broader starting questions about coverage will have to be applied to questions about higher-speed coverage. Also, another challenge we have run into so far is that a lot of the findings we were originally interested in will have very obvious conclusions, like the more populated ares are of course going to have better coverage. That wouldn't make for a very good story. We're going to have to get a bit more creative with how we use the data and where we look.

@@ -65,3 +65,5 @@ ggplot() +
 
 
 ```
+
+Our most newsworthy finding at this point is probably that there is a pretty clear pattern of lower-income places being more likely to have worse access to high-speed coverage. Granted, there are plenty of low-income areas that do have great coverage, but there are virtually zero high income areas with poor coverage. If you live in a wealthy area, you probably don;t have to worry about access to high-speed mobile coverage.

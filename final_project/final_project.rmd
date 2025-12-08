@@ -12,6 +12,7 @@ library(tidyverse)
 library(janitor)
 library(tidycensus)
 library(ggplot2)
+library(tigris)
 ```
 
 ```{r}
@@ -51,3 +52,16 @@ ggplot(mobile_by_income, aes(x=mobilebb_5g_spd2_area_st_pct, y=estimate)) +
 ```
 
 Limitations/challenges so far are that coverage as a whole is pretty good everywhere at this point, so we have to mainly look at the highest speed of mobile coverage, since that is not yet available everywhere. Our broader starting questions about coverage will have to be applied to questions about higher-speed coverage. Also, another challenge we have run into so far is that a lot of the findings we were originally interested in will have very obvious conclusions, like the more populated ares are of course going to have better coverage. That wouldn't make for a very good story. We're going to have to get a bit more creative with how we use the data and where we look.
+
+```{r}
+geog_places <- places(state = 24)
+
+geog_mobile_income <- mobile_by_income |>
+  left_join(geog_places, join_by(geography_id == GEOID))
+
+ggplot() +
+  geom_sf(data = geog_mobile_income, aes(fill=mobilebb_5g_spd2_area_st_pct, geometry=geometry)) +
+  theme_minimal()
+
+
+```

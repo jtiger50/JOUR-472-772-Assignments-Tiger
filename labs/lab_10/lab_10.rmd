@@ -113,5 +113,6 @@ md_ev_pop <- md_county_population |>
 
 ggplot() +
   geom_sf(data = md_ev_pop, aes(fill=ev_per_capita)) +
-  theme_minimal()
+  theme_minimal() +
+  scale_fill_viridis_b(option="mako", trans = "log")
 ```

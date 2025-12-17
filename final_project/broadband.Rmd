@@ -1,0 +1,264 @@
+---
+title: "Reverse Engineering Project"
+author: "Sammy, Brian, Andrew, Mehedi"
+date: "Oct 22, 2025"
+output:
+  html_document:
+    theme: cerulean
+    highlight: pygments
+    toc: true
+    toc_float:
+      collapsed: true
+      smooth_scroll: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+MEMO: <https://docs.google.com/document/d/10f-J7ugIr05jBNtir9bjtm3wowTzmfNGxaNzHH39ejk/edit?usp=sharing>
+
+## Load libraries
+
+Loading required libraries for this analysis.
+
+```{r echo=FALSE, message=FALSE}
+library(tidyverse)
+library(lubridate)
+library(janitor)
+library(sf)
+library(tidycensus)
+library(ggplot2)
+library(tigris)
+#install.packages("sf")
+library(sf)
+```
+
+## Load and Cleaning Data
+
+```{r}
+mobile_broadband_by_census <- read_csv("bdc_24_mobile_broadband_summary_by_geography_place_J25_22nov2025.csv") |>
+  mutate(geography_id=as.character(geography_id))
+
+mobile_broadband_by_county <- read_csv("bdc_us_mobile_broadband_summary_by_geography_J25_22nov2025.csv") 
+
+mobile_broadband_by_county <- filter(mobile_broadband_by_county, area_data_type=="Total",geography_type=="County" & str_detect(geography_desc,"MD"))
+
+md_popu <- get_acs(
+  geography = 'place',
+  variables = "B01001A_001",
+  state = 'MD',
+  year = 2023
+)
+
+md_median_income_censusplace <- get_acs(
+  geography = 'place',
+  variables = 'B19013_001',
+  state = 'MD',
+  year = 2023)
+```
+
+# How's fastest 5G mobile coverage rate across MD
+
+```{r}
+counties <- counties()
+
+md_counties <- counties |> 
+  filter(STATEFP == "24") |>
+  clean_names()
+
+md_statewide_geo<- md_counties |> inner_join(mobile_broadband_by_county, join_by(geoid==geography_id))
+```
+
+```{r}
+ggplot() +
+  geom_sf(data=md_statewide_geo, aes(fill=mobilebb_5g_spd2_area_st_pct))
+```
+
+# Is there a correlation between the fastest 5G mobile coverage and median income?
+
+```{r}
+mobile_broadband_by_census <- mobile_broadband_by_census |> filter(area_data_type=="Total") |>
+  select(geography_id, geography_desc, total_area, mobilebb_5g_spd2_area_st_pct)|>
+  left_join(md_median_income_censusplace, join_by(geography_id==GEOID)) |>
+  rename(median_income=estimate)
+```
+
+```{r}
+ggplot(mobile_broadband_by_census, aes(x=mobilebb_5g_spd2_area_st_pct, y=median_income))+ geom_point()
+```
+
+```{r}
+md_popu_county <- get_acs(
+  geography = 'county',
+  variables = "B01001A_001",
+  state = 'MD',
+  year = 2023
+)
+
+md_median_income_county <- get_acs(
+  geography = 'county',
+  variables = 'B19013_001',
+  state = 'MD',
+  year = 2023)
+```
+
+```{r}
+mobile_broadband_by_county <- mobile_broadband_by_county |>
+  select(geography_id, geography_desc, total_area, mobilebb_5g_spd2_area_st_pct)|>
+  left_join(md_median_income_county, join_by(geography_id==GEOID)) |>
+  rename(median_income=estimate)
+
+ggplot(mobile_broadband_by_county, aes(x=mobilebb_5g_spd2_area_st_pct, y=median_income))+ 
+  geom_point()+
+  geom_text(aes(label=geography_desc), nudge_x = 0.02, nudge_y = 3000, size = 3)
+```
+
+# Who is the biggest 5G-NR (35/3 Mbps) mobile broadband provider in MD?
+
+For the outdoor, stationary situation, T-Mobile provides the biggest coverage and then AT&T and Verizon. As for the in-vehicle environment, AT&T provides largest coverage and then T-mobile, Dish Network and Verizon.
+
+```{r}
+provider_coverage <- read_csv('bdc_us_mobile_broadband_provider_summary_J25_09dec2025.csv')|>clean_names() 
+provider_coverage_by_geo <- read_csv('bdc_us_provider_summary_by_geography_J25_09dec2025.csv')|>clean_names()
+
+provider_coverage <- filter(provider_coverage, technology_code_desc == "5G-NR (35/3 Mbps)")
+provider_coverage_by_county <- filter(provider_coverage_by_geo, geography_type=="County", data_type=="Mobile Broadband" & str_detect(geography_desc, "MD"))
+```
+
+```{r}
+provider_coverage |> select(holding_company,area_stationary, area_invehicle)|>arrange(desc(area_stationary))
+```
+
+# Do any counties have monopoly or duopoly broadband providers?
+
+There's no monopoly or duopoly broadband providers in any MD county. Most counties have four providers and Allegany County has five, but the coverage and competition level varies.
+
+For residential fixed broadband service and mobile broadband service in an outdoor stationary environment, most counties have at least three providers cover 50% of the area, while Dorchester, Kent and Somerset only have two providers cover half of the area, which are AT&T and Verizon (not surprising, but if they charge different in these counties it might be interesting).
+
+As for business fixed broadband and in-vehicle mobile broadband, lots of counties even don't have 50% coverage providers, even those counties with five providers (Allegany and Garrett). I guess it might because there's a lot less business broadband demand in these two counties.
+
+```{r}
+provider_coverage_by_county <- provider_coverage_by_county |> left_join(provider_coverage, by="provider_id") |> select(geography_id, geography_desc, data_type, provider_id, holding_company, res_st_pct, bus_iv_pct )
+```
+
+```{r}
+provider_coverage_by_county |> group_by(geography_desc) |>
+  summarise(n_providers = n(),
+            n_res_above_50 = sum(res_st_pct>0.5),
+            n_bus_above_50 = sum(bus_iv_pct>0.5))
+```
+
+# Are certain providers more discriminatory, focusing on wealthier areas?
+
+Larger providers like AT&T and Verizon show little correlation between coverage and county income levels. This may be because they have the resources to serve lower-income areas at lower costs, and face less competition in these markets, making it profitable despite lower incomes.
+
+In contrast, smaller providers like T-Mobile and Dish show stronger correlation with median income — the smaller their market share, the more their coverage depends on an area's wealth.
+
+But again, it's reasonable how they make their business strategy like this. It might be more newsworthy if there does exist price discrimination or speed discrimination because of less competition in certain area.
+
+```{r}
+provider_coverage_income <- provider_coverage_by_county |> left_join(md_median_income_county, join_by(geography_id==GEOID)) |> select(geography_desc,holding_company,res_st_pct, bus_iv_pct, estimate)
+
+provider_coverage_income <-  rename(provider_coverage_income, median_income=estimate)
+```
+
+## AT&T
+
+```{r}
+#To see if AT&T provide higher percentage for wealthier area
+
+ATandT_coverage_income <-filter(provider_coverage_income, holding_company=="AT&T Inc.")
+
+ggplot(ATandT_coverage_income)+ 
+  geom_point(aes(x=res_st_pct, y=median_income), color = "blue", alpha = 0.6)+
+  geom_text(aes(x=res_st_pct, y=median_income, label=geography_desc), nudge_x = 0.02, nudge_y = 3000, size = 3)+
+  geom_smooth(aes(x=res_st_pct, y=median_income), method="lm")
+
+ggplot(ATandT_coverage_income)+ 
+  geom_point(aes(x=bus_iv_pct, y=median_income), color = "red", alpha = 0.6)+
+  geom_text(aes(x=bus_iv_pct, y=median_income, label=geography_desc), nudge_x = 0.02, nudge_y = 3000, size = 3)+
+  geom_smooth(aes(x=bus_iv_pct, y=median_income), method="lm")
+```
+
+```{r}
+cor.test(ATandT_coverage_income$res_st_pct, ATandT_coverage_income$median_income)
+
+cor.test(ATandT_coverage_income$bus_iv_pct, ATandT_coverage_income$median_income)
+```
+
+## Verizon
+
+```{r}
+#To see if Verizon provide higher percentage for wealthier area
+
+verizon_coverage_income <-filter(provider_coverage_income, holding_company=="Verizon Communications Inc.")
+
+ggplot(verizon_coverage_income)+ 
+  geom_point(aes(x=res_st_pct, y=median_income), color = "blue", alpha = 0.6)+
+  geom_text(aes(x=res_st_pct, y=median_income, label=geography_desc), nudge_x = 0.02, nudge_y = 3000, size = 3)+
+  geom_smooth(aes(x=res_st_pct, y=median_income), method="lm")
+
+ggplot(verizon_coverage_income)+ 
+  geom_point(aes(x=bus_iv_pct, y=median_income), color = "red", alpha = 0.6)+
+  geom_text(aes(x=bus_iv_pct, y=median_income, label=geography_desc), nudge_x = 0.02, nudge_y = 3000, size = 3)+
+  geom_smooth(aes(x=bus_iv_pct, y=median_income), method="lm")
+```
+
+```{r}
+cor.test(verizon_coverage_income$res_st_pct, verizon_coverage_income$median_income)
+
+cor.test(verizon_coverage_income$bus_iv_pct, verizon_coverage_income$median_income)
+```
+
+## T-mobile
+
+```{r}
+#To see if T-mobile provide higher percentage for wealthier area
+
+tmobile_coverage_income <-filter(provider_coverage_income, holding_company=="T-Mobile USA, Inc.")
+
+ggplot(tmobile_coverage_income)+ 
+  geom_point(aes(x=res_st_pct, y=median_income), color = "blue", alpha = 0.6)+
+  geom_text(aes(x=res_st_pct, y=median_income, label=geography_desc), nudge_x = 0.02, nudge_y = 3000, size = 3)+
+  geom_smooth(aes(x=res_st_pct, y=median_income), method="lm")
+
+ggplot(tmobile_coverage_income)+ 
+  geom_point(aes(x=bus_iv_pct, y=median_income), color = "red", alpha = 0.6)+
+  geom_text(aes(x=bus_iv_pct, y=median_income, label=geography_desc), nudge_x = 0.02, nudge_y = 3000, size = 3)+
+  geom_smooth(aes(x=bus_iv_pct, y=median_income), method="lm")
+```
+
+```{r}
+cor.test(tmobile_coverage_income$res_st_pct, tmobile_coverage_income$median_income)
+
+cor.test(tmobile_coverage_income$bus_iv_pct, tmobile_coverage_income$median_income)
+```
+
+## Dish
+
+```{r}
+#To see if Dish Network provide higher percentage for wealthier area
+
+dish_coverage_income <-filter(provider_coverage_income, holding_company=="Dish Network Corporation")
+
+ggplot(dish_coverage_income)+ 
+  geom_point(aes(x=res_st_pct, y=median_income), color = "blue", alpha = 0.6)+
+  geom_text(aes(x=res_st_pct, y=median_income, label=geography_desc), nudge_x = 0.02, nudge_y = 3000, size = 3)+
+  geom_smooth(aes(x=res_st_pct, y=median_income), method="lm")
+
+ggplot(dish_coverage_income)+ 
+  geom_point(aes(x=bus_iv_pct, y=median_income), color = "red", alpha = 0.6)+
+  geom_text(aes(x=bus_iv_pct, y=median_income, label=geography_desc), nudge_x = 0.02, nudge_y = 3000, size = 3)+
+  geom_smooth(aes(x=bus_iv_pct, y=median_income), method="lm")
+```
+
+```{r}
+cor.test(dish_coverage_income$res_st_pct, dish_coverage_income$median_income)
+
+cor.test(dish_coverage_income$bus_iv_pct, dish_coverage_income$median_income)
+```
+
+# 

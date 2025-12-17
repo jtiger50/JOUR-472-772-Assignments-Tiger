@@ -1,0 +1,105 @@
+provider_id,holding_company,technology_code,technology_code_desc,area_stationary,area_invehicle
+130011,"Adak Eagle Enterprises, LLC",400,4G LTE,642,525
+130018,"Agri-Valley Communications, Inc.",400,4G LTE,6729,4257
+130067,"Arctic Slope Telephone Association Cooperative, Inc.",400,4G LTE,13117,5514
+130077,AT&T Inc.,400,4G LTE,5582639,3426406
+130077,AT&T Inc.,500,5G-NR (7/1 Mbps),3111332,1395825
+130077,AT&T Inc.,500,5G-NR (35/3 Mbps),2153452,1030290
+130081,"ATN International, Inc.",300,3G,2022,2022
+130081,"ATN International, Inc.",400,4G LTE,1996,1996
+130081,"ATN International, Inc.",500,5G-NR (7/1 Mbps),322,186
+130349,Copper Valley Telephone Cooperative,400,4G LTE,18357,12943
+130352,"Cordova Telephone Cooperative, Inc.",400,4G LTE,6476,3049
+130366,"NBVDS Investments, LLC",400,4G LTE,2039,1463
+130378,Custer Telephone Cooperative Inc.,400,4G LTE,3604,3238
+130403,"T-Mobile USA, Inc.",400,4G LTE,4391388,1851353
+130403,"T-Mobile USA, Inc.",500,5G-NR (7/1 Mbps),3739598,1343343
+130403,"T-Mobile USA, Inc.",500,5G-NR (35/3 Mbps),2616603,702670
+130431,"Eagle Telephone Systems, Inc.",400,4G LTE,4257,3322
+130490,"Farmers Telephone Cooperative, Inc. (SC)",400,4G LTE,12306,10881
+130490,"Farmers Telephone Cooperative, Inc. (SC)",500,5G-NR (7/1 Mbps),4745,2653
+130490,"Farmers Telephone Cooperative, Inc. (SC)",500,5G-NR (35/3 Mbps),3355,1727
+130534,GCI Holdings LLC,300,3G,136579,89134
+130534,GCI Holdings LLC,400,4G LTE,28471,15635
+130534,GCI Holdings LLC,500,5G-NR (35/3 Mbps),2194,1275
+130534,GCI Holdings LLC,500,5G-NR (7/1 Mbps),8669,5125
+130673,James Valley Cooperative Telephone Company,400,4G LTE,16114,12243
+130673,James Valley Cooperative Telephone Company,500,5G-NR (7/1 Mbps),11858,7817
+130741,Liberty Latin America Ltd.,400,4G LTE,1450,1213
+130741,Liberty Latin America Ltd.,500,5G-NR (7/1 Mbps),11150,9761
+130741,Liberty Latin America Ltd.,500,5G-NR (35/3 Mbps),874,581
+130794,"NBVDS Investment, LLC",400,4G LTE,7164,5273
+130886,"NE Colorado Cellular, Inc.",300,3G,165719,122169
+130886,"NE Colorado Cellular, Inc.",400,4G LTE,74685,44631
+130886,"NE Colorado Cellular, Inc.",500,5G-NR (35/3 Mbps),251,85
+130886,"NE Colorado Cellular, Inc.",500,5G-NR (7/1 Mbps),1731,732
+130890,"Nemont Telephone Cooperative, Inc.",400,4G LTE,41563,31436
+130926,North Carolina RSA 3 Cellular Telephone Company,400,4G LTE,4501,2495
+130926,North Carolina RSA 3 Cellular Telephone Company,500,5G-NR (35/3 Mbps),979,547
+130926,North Carolina RSA 3 Cellular Telephone Company,500,5G-NR (7/1 Mbps),1537,899
+130937,"Northeast Communications of Wisconsin, Inc.",400,4G LTE,38889,21447
+130937,"Northeast Communications of Wisconsin, Inc.",500,5G-NR (7/1 Mbps),2993,1500
+130937,"Northeast Communications of Wisconsin, Inc.",500,5G-NR (35/3 Mbps),1804,805
+130962,Nucla-Naturita Telephone Company,400,4G LTE,1802,1095
+130999,"NTT DoCoMo, Inc.",300,3G,638,600
+130999,"NTT DoCoMo, Inc.",400,4G LTE,693,227
+130999,"NTT DoCoMo, Inc.",500,5G-NR (35/3 Mbps),360,86
+130999,"NTT DoCoMo, Inc.",500,5G-NR (7/1 Mbps),368,124
+131007,"Panhandle Telephone Cooperative, Inc.",400,4G LTE,13553,13473
+131007,"Panhandle Telephone Cooperative, Inc.",500,5G-NR (7/1 Mbps),2824,2134
+131038,Pine Belt Communications Co. Inc.,400,4G LTE,11661,11660
+131039,Pine Telephone Company,400,4G LTE,16112,12505
+131190,"Horizon Communications, Inc.",400,4G LTE,4699,3925
+131208,"Smith Bagley, Inc.",300,3G,8850,5970
+131208,"Smith Bagley, Inc.",400,4G LTE,30646,19262
+131226,American Broadband Holding Company,400,4G LTE,5087,2271
+131227,Southern Company,400,4G LTE,126503,57366
+131302,"Telapex, Inc.",400,4G LTE,100202,67384
+131302,"Telapex, Inc.",500,5G-NR (7/1 Mbps),41284,22456
+131302,"Telapex, Inc.",500,5G-NR (35/3 Mbps),9401,3758
+131309,"TeleGuam Holdings, Inc.",400,4G LTE,454,421
+131309,"TeleGuam Holdings, Inc.",500,5G-NR (35/3 Mbps),169,117
+131309,"TeleGuam Holdings, Inc.",500,5G-NR (7/1 Mbps),268,175
+131310,"Telephone and Data Systems, Inc.",400,4G LTE,630636,371032
+131310,"Telephone and Data Systems, Inc.",500,5G-NR (7/1 Mbps),489400,307277
+131310,"Telephone and Data Systems, Inc.",500,5G-NR (35/3 Mbps),109014,51048
+131328,"Thacker-Grigsby Telephone Company, Inc.",400,4G LTE,19452,15737
+131328,"Thacker-Grigsby Telephone Company, Inc.",500,5G-NR (7/1 Mbps),11979,8914
+131328,"Thacker-Grigsby Telephone Company, Inc.",500,5G-NR (35/3 Mbps),5657,3906
+131387,"UBTA-UBET Communications, Inc.",400,4G LTE,14009,11399
+131395,"United Telephone Association, Inc.",400,4G LTE,31941,14356
+131425,Verizon Communications Inc.,400,4G LTE,5854877,2528033
+131425,Verizon Communications Inc.,500,5G-NR (7/1 Mbps),1749892,407527
+131425,Verizon Communications Inc.,500,5G-NR (35/3 Mbps),1142776,195087
+170001,"Puerto Rico Telephone Company, Inc.",300,3G,7530,6721
+170001,"Puerto Rico Telephone Company, Inc.",400,4G LTE,11566,9424
+170001,"Puerto Rico Telephone Company, Inc.",500,5G-NR (7/1 Mbps),7977,6017
+170001,"Puerto Rico Telephone Company, Inc.",500,5G-NR (35/3 Mbps),3917,2870
+170002,Bristol Bay Cellular Partnership,400,4G LTE,5844,2348
+170012,"American Samoa Telecom, LLC",300,3G,113,104
+170012,"American Samoa Telecom, LLC",400,4G LTE,115,109
+170012,"American Samoa Telecom, LLC",500,5G-NR (35/3 Mbps),148,142
+170012,"American Samoa Telecom, LLC",500,5G-NR (7/1 Mbps),155,149
+190281,"OTZ Telephone Cooperative, Inc.",400,4G LTE,5503,3221
+220001,PTI Pacifica Inc.,300,3G,611,611
+220001,PTI Pacifica Inc.,400,4G LTE,723,723
+220001,PTI Pacifica Inc.,500,5G-NR (35/3 Mbps),307,307
+220001,PTI Pacifica Inc.,500,5G-NR (7/1 Mbps),440,440
+240047,Americell PA3 Limited Partnership,400,4G LTE,581,279
+300085,"Tower Bridge Mobile Holdings, LLC",300,3G,115,69
+300085,"Tower Bridge Mobile Holdings, LLC",400,4G LTE,75,42
+300188,Standing Rock Sioux Tribe,400,4G LTE,12337,6795
+350009,American Samoa Telecommunications Authority,400,4G LTE,763,528
+350009,American Samoa Telecommunications Authority,500,5G-NR (7/1 Mbps),253,158
+350009,American Samoa Telecommunications Authority,500,5G-NR (35/3 Mbps),253,158
+360064,OptimERA Inc.,400,4G LTE,88,38
+360114,Union Holding Corp.,300,3G,111308,70393
+360114,Union Holding Corp.,400,4G LTE,161769,116758
+380126,Tampnet Inc.,400,4G LTE,16541,16541
+410192,Inland Cellular Telephone Company,400,4G LTE,29530,18548
+460631,Nex-Tech Wireless,400,4G LTE,84690,71122
+460631,Nex-Tech Wireless,500,5G-NR (7/1 Mbps),31448,22345
+460632,"VTel Wireless, Inc.",400,4G LTE,6711,3291
+460677,Dish Network Corporation,500,5G-NR (35/3 Mbps),751878,606080
+460677,Dish Network Corporation,500,5G-NR (7/1 Mbps),922429,802176
+520035,"World Mobile Networks, LLC",400,4G LTE,10603,4085
